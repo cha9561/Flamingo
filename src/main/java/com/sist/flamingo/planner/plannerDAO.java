@@ -1,5 +1,5 @@
 package com.sist.flamingo.planner;
 
-public class temp {
+public class plannerDAO {
 
 }

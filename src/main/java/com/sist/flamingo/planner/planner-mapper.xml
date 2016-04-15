@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.dao.board-mapper">
+	<!-- SQL문장 저장 -->
+	<!-- id : 구분 문자 ============ id sql ============ boardAllData SEL~~ resultType 
+		=> return parameterType => 매개변수 -->
+	<sql id="where-no">
+		WHERE no=#{no}
+	</sql>
+	<select id="boardAllData" resultType="board" parameterType="java.util.Map">
+		SELECT no,subject,name,regdate,hit,num
+		FROM(SELECT no,subject,name,regdate,hit,rownum as num
+		FROM(SELECT no,subject,name,regdate,hit
+		FROM replyBoard ORDER BY no DESC))
+		WHERE num BETWEEN #{start} AND #{end}
+		<!-- #{start} ==> map.get("start") #{no} => board.getNo() # => 데이터 $ ==> 
+			컬럼명 WHERE ${fs} LIKE '%#{ss}%' -->
+	</select>
+	<select id="boardRowCount" resultType="int">
+		SELECT COUNT(*) FROM
+		replyBoard
+	</select>
+	<!-- 내용보기 -->
+	<update id="boardHitIncrement" parameterType="int">
+		UPDATE replyBoard SET
+		hit=hit+1
+		<include refid="where-no" />
+	</update>
+	<select id="boardContentData" resultType="board" parameterType="int">
+		SELECT no,name,subject,content,regdate,hit
+		FROM replyBoard
+		<include refid="where-no" />
+	</select>
+	<insert id="boardInsert" parameterType="board">
+		INSERT INTO replyBoard(no,name,subject,content,pwd) 
+		VALUES((SELECT NVL(MAX(no)+1,1) FROM replyBoard),
+		#{name},#{subject},#{content},#{pwd})
+	</insert>
+	<select id="boardGetPwd" resultType="String" parameterType="int">
+		SELECT pwd FROM replyBoard
+		<include refid="where-no"/>
+	</select>
+	<update id="boardUpdate" parameterType="board">
+		UPDATE replyBoard SET
+		name=#{name},subject=#{subject},content=#{content}
+		<include refid="where-no"/>
+	</update>
+</mapper>
