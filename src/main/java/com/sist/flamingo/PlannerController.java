@@ -8,9 +8,12 @@ import com.sist.controller.RequestMapping;
 import java.util.*;
 @Controller("pc")
 public class PlannerController {
-	@RequestMapping("board_list.do")
-	public String board_list(HttpServletRequest req)
+	@RequestMapping("planer_value.do")
+	public String planner_value(HttpServletRequest req)
 	{
+		String cityname=req.getParameter("cityname");
+		String cityno=req.getParameter("cityno");
+		
 		/*String page=req.getParameter("page");
 		if(page==null)
 			page="1";
@@ -27,7 +30,8 @@ public class PlannerController {
 		req.setAttribute("totalpage", totalpage);
 		req.setAttribute("list", list);
 		req.setAttribute("jsp", "board/board_list.jsp");*/
-		return "user/main.jsp";
+		req.setAttribute("jsp", "planner.planner_value.jsp");
+		return "planner/plannerMain.jsp";
 	}
 	@RequestMapping("board_content.do")
 	public String board_content(HttpServletRequest req)

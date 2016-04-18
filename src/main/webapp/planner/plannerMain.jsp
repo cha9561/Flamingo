@@ -192,7 +192,6 @@
             			var infowindow = new google.maps.InfoWindow()
         				google.maps.event.addListener(marker, "click", function () {
         					infowindow.setContent(contentString);
-        					//infowindow.addButton("여기")
         					infowindow.open(map, this);
         				});
             			
@@ -217,38 +216,15 @@
             		      '(last visited June 22, 2009).</p>'+
             		      '</div>'+
             		      '<div>'+
-            		      '<input type=button value="+">'+
+            		      '<a href="planer_value.do?no=${vo.cityno}&name=${vo.cityname}">'+
+            		      '<button id="bt1" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">+</button>'+
+            		      '</a>'+
             		      '</div>'+
             		      '</div>';
 
             		}
             		
-            		for (i in locationsArray) {
-            			locations[i].setMap(null);
-            		}
-            		var lineSymbol = {
-            			    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-            			  };
-            		var flightPath = new google.maps.Polyline({
-            			path : Coordinates,
-            			strokeColor : "black",
-            			strokeOpacity : 0.5,
-            			strokeWeight : 3,
-            			icons: [{
-            			      icon: lineSymbol,
-            			      offset: '100%'
-            			    }]
-            		});
-            		flightPath.setMap(map);
-            		travelPathArray.push(flightPath);
             	}
-            	function toggleBounce() {
-            		  if (marker.getAnimation() !== null) {
-            		    marker.setAnimation(null);
-            		  } else {
-            		    marker.setAnimation(google.maps.Animation.BOUNCE);
-            		  }
-            		}
             })
             </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgsE34wC54vCEIj_YR31lJWPF9VMduzK8&callback=initMap"
@@ -262,14 +238,7 @@
 		style="z-index: 99999; position: absolute;"></div>
 	<div id="SLB_loading" onclick="SLB();" title="close..">
 		Loading...</div>
-	<gwd-doubleclick id="gwd-ad" polite-load=""> <!-- <gwd-metric-configuration>
-      <gwd-metric-event source="google_map" event="pinclick" metric="google_map: Pin clicked"></gwd-metric-event>
-      <gwd-metric-event source="google_map" event="mapopen" metric="google_map: Map Opened"></gwd-metric-event>
-      <gwd-metric-event source="google_map" event="resultsfound" metric="google_map: Map Results Found"></gwd-metric-event>
-      <gwd-metric-event source="google_map" event="resultsnotfound" metric="google_map: No Results Found"></gwd-metric-event>
-      <gwd-metric-event source="google_map" event="getdirections" metric="" exit="Get directions button"></gwd-metric-event>
-      <gwd-metric-event source="google_map" event="calllocation" metric="" exit="Call location button"></gwd-metric-event>
-    </gwd-metric-configuration> -->
+	<gwd-doubleclick id="gwd-ad" polite-load=""> 
 	<div is="gwd-pagedeck" class="gwd-page-container" id="pagedeck">
 		<div is="gwd-page" id="page1"
 			class="gwd-page-wrapper gwd-page-size gwd-lightbox gwd-div-8ehm"
@@ -297,9 +266,13 @@
 				<div class="gwd-div-2h60" style=""></div>
 				<div class="gwd-div-1z45" style=""></div>
 				<div class="gwd-div-ikgy" style="border-style: solid;" id="place1"></div>
+				<jsp:include page="${jsp }"></jsp:include>
 				<div class="gwd-div-1wk8" style="border-style: solid;" id="place2"></div>
+				<jsp:include page="${jsp }"></jsp:include>
 				<div class="gwd-div-1vxx" style="border-style: solid;" id="place3"></div>
+				<jsp:include page="${jsp }"></jsp:include>
 				<div class="gwd-div-oojv" style="border-style: solid;" id="place4"></div>
+				<jsp:include page="${jsp }"></jsp:include>
 				<div class="gwd-div-1d7o" id="planing1" style=""></div>
 				<div class="gwd-div-1r07" id="planing2" style=""></div>
 				<a href="help.jsp">
