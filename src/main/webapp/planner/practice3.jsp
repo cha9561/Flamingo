@@ -12,9 +12,9 @@
 
 
 	
-	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="planner/style.css" rel="stylesheet" type="text/css">
 	 <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="planner/css/bootstrap.min.css" type="text/css">
 
     <!--mdl css-->
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
@@ -29,10 +29,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <!-- Plugin CSS -->
-    <link rel="stylesheet" href="css/animate.min.css" type="text/css">
+    <link rel="stylesheet" href="planner/css/animate.min.css" type="text/css">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/creative.css" type="text/css">
+    <link rel="stylesheet" href="planner/css/creative.css" type="text/css">
 	
 <script data-source="googbase_min.js" data-version="3"
 	data-exports-type="googbase" type="text/javascript"

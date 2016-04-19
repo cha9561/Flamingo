@@ -13,6 +13,9 @@ public class FlamingoController {
 	{
 		return "main/index.jsp";
 	}
-	/*@RequestMapping("join_ok.do")
-	public */
+	@RequestMapping("planner.do")
+	public String Planner(HttpServletRequest req)
+	{
+		return "planner/practice3.jsp";
+	}
 }
