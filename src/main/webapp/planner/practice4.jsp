@@ -57,7 +57,6 @@ function initialize() {
 				startLng = map.getBounds().getSouthWest().lng();
 				endLat = map.getBounds().getNorthEast().lat();
 				endLng = map.getBounds().getNorthEast().lng();
-
 				viewMarker();
 			});
 
@@ -67,7 +66,6 @@ function initialize() {
 				startLng = map.getBounds().getSouthWest().lng();
 				endLat = map.getBounds().getNorthEast().lat();
 				endLng = map.getBounds().getNorthEast().lng();
-
 				viewMarker();
 			});
 
@@ -83,7 +81,8 @@ function initialize() {
 			// 줌 또는 드래그등 지도 정보 변경시에 화면내에 마커만 표시하기위해 좌표 인식 se
 
 
-		}, function (error) {
+		},
+		function (error) {
 			switch (error.code) {
 			case 1:
 				$("#errormsg").html("User denied the request for Geolocation.");
@@ -110,7 +109,7 @@ function viewMarker() {
 	{
 		$.ajax({
 			type: "GET",
-			url: "../planner/marker.js",
+			url: "../js/marker.js",
 			 beforeSend: function() {
 				fnRemoveMarker();	// 조회 전 기존 마커 제거
 			 },
@@ -157,7 +156,7 @@ $( window ).load(function() {
 	initialize();
 });
 
-//
+
 </SCRIPT>
 <body>
 <div id="map" style="width:760px;height:400px;margin-top:20px;"></div>

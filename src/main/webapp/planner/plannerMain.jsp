@@ -220,7 +220,7 @@
             		      '<button id="bt1" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">+</button>'+
             		      '</a>'+
             		      '</div>'+
-            		      '</div>';
+            		      '</div>'; 
 
             		}
             		

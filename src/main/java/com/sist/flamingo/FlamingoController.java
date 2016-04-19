@@ -18,4 +18,14 @@ public class FlamingoController {
 	{
 		return "planner/practice3.jsp";
 	}
+	@RequestMapping("help.do")
+	public String plannerHelp(HttpServletRequest req)
+	{
+		return "planner/help.jsp";
+	}
+	@RequestMapping("calander.do")
+	public String plannerCalander(HttpServletRequest req)
+	{
+		return "planner/calander.jsp";
+	}
 }

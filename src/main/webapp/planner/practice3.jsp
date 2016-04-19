@@ -14,7 +14,7 @@
 	
 	<link href="planner/style.css" rel="stylesheet" type="text/css">
 	 <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="planner/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="js/css/bootstrap.min.css" type="text/css">
 
     <!--mdl css-->
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
@@ -22,18 +22,11 @@
     <!-- Custom Fonts -->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
 
     <!--mdlfont -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-    <!-- Plugin CSS -->
-    <link rel="stylesheet" href="planner/css/animate.min.css" type="text/css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="planner/css/creative.css" type="text/css">
-	
 <script data-source="googbase_min.js" data-version="3"
 	data-exports-type="googbase" type="text/javascript"
 	src="googbase_min.js"></script>
@@ -98,6 +91,31 @@
 			showSelectedPlace();
 		});
 		
+		google.maps.event.addListener(map, 'idle', function(){
+			startLat = map.getBounds().getSouthWest().lat();
+			startLng = map.getBounds().getSouthWest().lng();
+			endLat = map.getBounds().getNorthEast().lat();
+			endLng = map.getBounds().getNorthEast().lng();
+			viewMarker();
+		});
+		
+		google.maps.event.addListener(map, 'zoom_changed', function() {
+			startLat = map.getBounds().getSouthWest().lat();
+			startLng = map.getBounds().getSouthWest().lng();
+			endLat = map.getBounds().getNorthEast().lat();
+			endLng = map.getBounds().getNorthEast().lng();
+			viewMarker();
+		});
+		
+		google.maps.event.addListener(map, 'dragend', function(){
+			startLat = map.getBounds().getSouthWest().lat();
+			startLng = map.getBounds().getSouthWest().lng();
+			endLat = map.getBounds().getNorthEast().lat();
+			endLng = map.getBounds().getNorthEast().lng();
+			viewMarker();
+		});
+		
+		
 		google.maps.event.addListener(map, 'click', function(event) {
 			var image = "http://www.stubbyplanner.com/img_v8/selectcityICON_red.png"
 			var marker = new google.maps.Marker({
@@ -116,7 +134,6 @@
 			flightPath();
 		});
 	}
-
 
 	//해당 위치에 주소를 가져오고, 마크를 클릭시 infowindow에 주소를 표시한다.
 	function attachMessage(marker, latlng) {
@@ -276,7 +293,9 @@
 				});
 				iw.open(map, markers[i]);
 			}
+			
 		}
+		
 	}
 
 	function getIWContent(place) {
@@ -322,8 +341,6 @@
 				</p>
 				</form>
 				
-				<!-- <div class="gwd-div-45ow" id="button2" style=""></div>
-				<div class="gwd-div-18o3" id="button3" style=""></div> -->
 				<div class="gwd-div-2h60" style=""></div>
 				<div class="gwd-div-ikgy" style="border-style: solid;" id="place1"></div>
 				<jsp:include page="${jsp }"></jsp:include>
@@ -335,9 +352,9 @@
 				<jsp:include page="${jsp }"></jsp:include>
 				<div class="gwd-div-1d7o" id="planing1" style=""></div>
 				<div class="gwd-div-1r07" id="planing2" style=""></div>
-				<a href="help.jsp">
+				<a href="help.do">
 				<button id="bt1" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">사용법</button></a>
-				<a href="calander.jsp">
+				<a href="calander.do">
 				<button id="bt2" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">일정표</button></a>
 				<button id="bt3" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">플래너 초기화</button>
 				<!-- Accent-colored flat button -->
@@ -347,8 +364,6 @@
 					<input class="mdl-textfield__input" type="text" id="sample3">
 					<label class="mdl-textfield__label" for="sample3">Text...</label>
 				</div>
-				<!-- <a href=""><p class="gwd-p-1g59" id="save_btn"
-						style="border-style: solid;">플래너 저장</p></a> -->
 				<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" id="bt5">플래너 저장</button>
 						
 				<div class="gwd-div-h7fg" id="planing3"></div>
@@ -358,43 +373,6 @@
 		
 	</div>
 	</gwd-doubleclick>
-	<!-- <script type="text/javascript" id="gwd-init-code">
-    (function() {
-      var gwdAd = document.getElementById('gwd-ad');
-
-      /**
-       * Handles the DOMContentLoaded event. The DOMContentLoaded event is
-       * fired when the document has been completely loaded and parsed.
-       */
-      function handleDomContentLoaded(event) {
-
-      }
-
-      /**
-       * Handles the WebComponentsReady event. This event is fired when all
-       * custom elements have been registered and upgraded.
-       */
-      function handleWebComponentsReady(event) {
-        // Start the Ad lifecycle.
-        setTimeout(function() {
-          gwdAd.initAd();
-        }, 0);
-      }
-
-      /**
-       * Handles the event that is dispatched after the Ad has been
-       * initialized and before the default page of the Ad is shown.
-       */
-      function handleAdInitialized(event) {}
-
-      window.addEventListener('DOMContentLoaded',
-        handleDomContentLoaded, false);
-      window.addEventListener('WebComponentsReady',
-        handleWebComponentsReady, false);
-      window.addEventListener('adinitialized',
-        handleAdInitialized, false);
-    })();
-  </script> -->
 </body>
 
 </html>
