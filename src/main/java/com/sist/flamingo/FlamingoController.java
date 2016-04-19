@@ -11,7 +11,8 @@ public class FlamingoController {
 	@RequestMapping("main.do")
 	public String mainView(HttpServletRequest req)
 	{
-		System.out.println("zz");
-		return "main/main.jsp";
+		return "main/index.jsp";
 	}
+	/*@RequestMapping("join_ok.do")
+	public */
 }
