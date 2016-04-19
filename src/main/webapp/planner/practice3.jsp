@@ -97,6 +97,7 @@
 		google.maps.event.addListener(autocomplete, 'place_changed', function () {
 			showSelectedPlace();
 		});
+		
 		google.maps.event.addListener(map, 'click', function(event) {
 			var image = "http://www.stubbyplanner.com/img_v8/selectcityICON_red.png"
 			var marker = new google.maps.Marker({

@@ -1,289 +1,168 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-
 <head>
-	<title>위치기반 지역정보 검색</title>
-	<meta http-equiv="content-type" content="text/html;charset=UTF-8">
+	<meta charset="utf-8" />
+	<title>practice4 </title>
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 </head>
+<SCRIPT LANGUAGE="JavaScript">
+/*
+	작성자 : kay  ( http://www.uhoon.co.kr ) 공유 시 지우지 남겨주세유..
+	작성일 : 2014.07.17
+	내용 : 구글맵 v3 - 마커 + 말풍선 + GPS 연동+ 원그리기 + 동적 마커 생성( Ajax )
+		   : 줌 또는 2014.08.04 추가 
+*/
+var markers = [];
+var map;
+var geocoder;
+var infowindow = null;
 
-<body class="docs framebox_body" onload="initialize()">﻿
-	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script>
-	<script type="text/javascript">
-		var map, places, iw;
-		var markers = [];
-		var autocomplete;
-		var MarkersArray = [];
-		var Coordinates = [];
-		var travelPathArray = [];
-		var map;
-		function initialize() {
-			var myLatlng = new google.maps.LatLng(48, 2);
-			var myOptions = {
-				zoom: 7,
-				center: myLatlng,
-				mapTypeId: google.maps.MapTypeId.ROADMAP
+var latitude = 0;
+var longitude = 0;
+
+
+var startLat = null;
+var startLng = null;
+var endLat = null;
+var endLng = null;
+
+function initialize() {
+	geocoder = new google.maps.Geocoder();
+
+	// GPS 인식 가능 여부(현재 위치)
+	if (navigator.geolocation) {
+
+		navigator.geolocation.getCurrentPosition(function (pos) {
+
+			// 현재 위경도 값(GPS) 변수에 넣기.
+			var latitude = 48;
+			var longitude = 2;
+
+			var mapOptions = {
+				zoom: 4,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				center: new google.maps.LatLng(latitude,longitude)
 			};
-			map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
-			places = new google.maps.places.PlacesService(map);
-			google.maps.event.addListener(map, 'tilesloaded', tilesLoaded);
-			autocomplete = new google.maps.places.Autocomplete(document.getElementById('autocomplete'));
-			google.maps.event.addListener(autocomplete, 'place_changed', function () {
-				showSelectedPlace();
-			});
+
+			map = new google.maps.Map(document.getElementById('map'),mapOptions);
+
 			
-			google.maps.event.addListener(map, 'click', function(event) {
-				var image = "http://www.stubbyplanner.com/img_v8/selectcityICON_red.png"
-				var marker = new google.maps.Marker({
-					position : event.latLng,
-					map : map,
-					title : '위치마커',
-					icon:image
-					
-				});
-				attachMessage(marker, event.latLng);
-				//선을 그리기 위해 좌표를 넣는다.
-				Coordinates.push(event.latLng);
-				//마커 담기
-				MarkersArray.push(marker);
-				//array에 담은 위도,경도 데이타를 가지고 동선 그리기
-				flightPath();
+
+			// 처음 맵 로드 완료 후 지도 범위 확인을 위해 좌표 인식.
+			google.maps.event.addListener(map, 'idle', function(){
+				startLat = map.getBounds().getSouthWest().lat();
+				startLng = map.getBounds().getSouthWest().lng();
+				endLat = map.getBounds().getNorthEast().lat();
+				endLng = map.getBounds().getNorthEast().lng();
+
+				viewMarker();
 			});
-		}
-		
-		function attachMessage(marker, latlng) {
-			geocoder = new google.maps.Geocoder();
-			geocoder.geocode({
-				'latLng' : latlng
-			}, function(results, status) {
-				if (status == google.maps.GeocoderStatus.OK) {
-					if (results[0]) {
-						var address_nm = results[0].formatted_address;
-						var infowindow = new google.maps.InfoWindow({
-							content : address_nm,
-							size : new google.maps.Size(50, 50)
+
+			// 줌 또는 드래그, 화면이동 등 지도 정보 변경시에 화면내에 마커만 표시하기위해 좌표 인식 s
+			google.maps.event.addListener(map, 'zoom_changed', function() {
+				startLat = map.getBounds().getSouthWest().lat();
+				startLng = map.getBounds().getSouthWest().lng();
+				endLat = map.getBounds().getNorthEast().lat();
+				endLng = map.getBounds().getNorthEast().lng();
+
+				viewMarker();
+			});
+
+			google.maps.event.addListener(map, 'dragend', function(){
+				startLat = map.getBounds().getSouthWest().lat();
+				startLng = map.getBounds().getSouthWest().lng();
+				endLat = map.getBounds().getNorthEast().lat();
+				endLng = map.getBounds().getNorthEast().lng();
+
+				viewMarker();
+			});
+
+			// 줌 또는 드래그등 지도 정보 변경시에 화면내에 마커만 표시하기위해 좌표 인식 se
+
+
+		}, function (error) {
+			switch (error.code) {
+			case 1:
+				$("#errormsg").html("User denied the request for Geolocation.");
+				break;
+			case 2:
+				$("#errormsg").html("Location information is unavailable.");
+				break;
+			case 3:
+				$("#errormsg").html("The request to get user location timed out.");
+				break;
+			case 0:
+				$("#errormsg").html("An unknown error occurred.");
+				break;
+			}
+		});
+	} else {
+		alert("Geolocation is not supported by this browser.");
+	}
+}
+
+// 드롭 마커 보기
+function viewMarker() {
+	if(startLat)
+	{
+		$.ajax({
+			type: "GET",
+			url: "../planner/marker.js",
+			 beforeSend: function() {
+				fnRemoveMarker();	// 조회 전 기존 마커 제거
+			 },
+			success: function (json) {
+				var markerList = $.parseJSON(json);
+				var listLen = markerList.length;
+				var kkk = 0 ;		//마커 갯수 확인 용
+				for(var i=0; i<listLen; i++){
+					if (parseFloat(startLat) <= parseFloat(markerList[i].lat) && parseFloat(startLng) <= parseFloat(markerList[i].lng) && parseFloat(endLat) >= parseFloat(markerList[i].lat) && parseFloat(endLng) >= parseFloat(markerList[i].lng))
+					{
+						kkk++;	//마커 갯수 확인 용
+						var marker = new google.maps.Marker({
+							position: new google.maps.LatLng(markerList[i].lat,markerList[i].lng),
+							map: map,
+							draggable: false,
+							icon: markerList[i].icon,
+							html: markerList[i].cont
 						});
-						google.maps.event.addListener(marker, 'click', function() {
-							infowindow.open(map, marker);
+						markers.push(marker);
+
+						var infowindow = new google.maps.InfoWindow()
+
+						google.maps.event.addListener(marker, "click", function () {
+							infowindow.setContent(this.html);
+							infowindow.open(map, this);
 						});
 					}
 				}
-			});
-		}
-		//동선그리기
-		function flightPath() {
-			for (i in travelPathArray) {
-				travelPathArray[i].setMap(null);
+				$("#marketCount").html("페이지내에 총 "+kkk+"개의 마커가 존재합니다.");
 			}
-			var lineSymbol = {
-				    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-				  };
-			var flightPath = new google.maps.Polyline({
-				path : Coordinates,
-				strokeColor : "black",
-				strokeOpacity : 0.5,
-				strokeWeight : 3,
-				icons: [{
-				      icon: lineSymbol,
-				      offset: '100%'
-				    }]
-			});
-			flightPath.setMap(map);
-			travelPathArray.push(flightPath);
-		}
-		
+		});
+	}
+}
 
-		function tilesLoaded() {
-			google.maps.event.clearListeners(map, 'tilesloaded');
-			google.maps.event.addListener(map, 'zoom_changed', search);
-			google.maps.event.addListener(map, 'dragend', search);
-			search();
-		}
+// 마커 제거 함수
+function fnRemoveMarker()
+{
+	for (var i = 1; i < markers.length; i++) {
+		markers[i].setMap(null);
+	}
+}
 
-		function showSelectedPlace() {
-			clearResults();
-			clearMarkers();
-			var place = autocomplete.getPlace();
-			alert(place.geometry.location);
-			map.panTo(place.geometry.location);
-			markers[0] = new google.maps.Marker({
-				position: place.geometry.location,
-				map: map
-			});
-			iw = new google.maps.InfoWindow({
-				content: getIWContent(place)
-			});
-			iw.open(map, markers[0]);
-		}
+$( window ).load(function() {
+	initialize();
+});
 
-		function search() {
-			var type;
-			for (var i = 0; i < document.controls.type.length; i++) {
-				if (document.controls.type[i].checked) {
-					type = document.controls.type[i].value;
-				}
-			}
-			autocomplete.setBounds(map.getBounds());
-			var search = {
-				bounds: map.getBounds()
-			};
-			if (type != 'establishment') {
-				search.types = [type];
-			}
-			places.search(search, function (results, status) {
-				if (status == google.maps.places.PlacesServiceStatus.OK) {
-					clearResults();
-					clearMarkers();
-					for (var i = 0; i < results.length; i++) {
-						markers[i] = new google.maps.Marker({
-							position: results[i].geometry.location,
-							animation: google.maps.Animation.DROP
-						});
-						google.maps.event.addListener(markers[i], 'click', getDetails(results[i], i));
-						setTimeout(dropMarker(i), i * 100);
-						addResult(results[i], i);
-					}
-				}
-			});
-		}
-
-		function clearMarkers() {
-			for (var i = 0; i < markers.length; i++) {
-				if (markers[i]) {
-					markers[i].setMap(null);
-					markers[i] == null;
-				}
-			}
-		}
-
-		function dropMarker(i) {
-			return function () {
-				markers[i].setMap(map);
-			}
-		}
-
-		function addResult(result, i) {
-			var results = document.getElementById('results');
-			var tr = document.createElement('tr');
-			tr.style.backgroundColor = (i % 2 == 0 ? '#F0F0F0' : '#FFFFFF');
-			tr.onclick = function () {
-				google.maps.event.trigger(markers[i], 'click');
-			};
-			var iconTd = document.createElement('td');
-			var nameTd = document.createElement('td');
-			var icon = document.createElement('img');
-			icon.src = result.icon.replace('http:', '');
-			icon.setAttribute('class', 'placeIcon');
-			var name = document.createTextNode(result.name);
-			iconTd.appendChild(icon);
-			nameTd.appendChild(name);
-			tr.appendChild(iconTd);
-			tr.appendChild(nameTd);
-			results.appendChild(tr);
-		}
-
-		function clearResults() {
-			var results = document.getElementById('results');
-			while (results.childNodes[0]) {
-				results.removeChild(results.childNodes[0]);
-			}
-		}
-
-		function getDetails(result, i) {
-			return function () {
-				places.getDetails({
-					reference: result.reference
-				}, showInfoWindow(i));
-			}
-		}
-
-		function showInfoWindow(i) {
-			return function (place, status) {
-				if (iw) {
-					iw.close();
-					iw = null;
-				}
-				if (status == google.maps.places.PlacesServiceStatus.OK) {
-					iw = new google.maps.InfoWindow({
-						content: getIWContent(place)
-					});
-					iw.open(map, markers[i]);
-				}
-			}
-		}
-
-		function getIWContent(place) {
-			var content = '<table style="border:0"><tr><td style="border:0;">';
-			content += '<img class="placeIcon" src="' + place.icon + '"></td>';
-			content += '<td style="border:0;"><b><a href="' + place.url + '">' + place.name + '</a></b>';
-			content += '</td></tr></table>';
-			return content;
-		}
-		google.maps.event.addDomListener(window, 'load', initialize);
-	</script>
-	<style type="text/css">
-		html, body {
-			margin: 0;
-			padding: 0;
-			height: 100%;
-			font-family: arial;
-			font-size: 13px;
-			overflow: hidden;
-		}
-		#map_canvas {
-			float: left;
-			width: 820px;
-			height: 406px;
-		}
-		#listing {
-			float: left;
-			margin-left: 1px;
-			width: 205px;
-			height: 326px;
-			overflow: auto;
-			cursor: pointer;
-		}
-		#controls {
-			padding: 5px;
-		}
-		.placeIcon {
-			width: 16px;
-			height: 16px;
-			margin: 2px;
-		}
-		#results {
-			border-collapse: collapse;
-			width: 184px;
-		}
-		#locationField {
-			margin-left: 1px;
-		}
-		#autocomplete {
-			width: 516px;
-			border: 1px solid #ccc;
-		}
-	</style>
-	<div id="locationField">
-		<input id="autocomplete" type="text">
-	</div>
-	<div id="map_canvas"></div>
-	<div id="controls">
-		<form name="controls">
-			<input type="radio" name="type" value="establishment" onclick="search()" checked="checked" />기관, 시설
-			<br/>
-			<input type="radio" name="type" value="hospital" onclick="search()" />병원
-			<br/>
-			<input type="radio" name="type" value="restaurant" onclick="search()" />레스토랑
-			<br/>
-			<input type="radio" name="type" value="subway_station" onclick="search()" />지하철
-			<br/>
-			<input type="radio" name="type" value="lodging" onclick="search()" />숙박업소</form>
-
-	</div>
-	<div id="listing">
-		<table id="results"></table>
-	</div>
+//
+</SCRIPT>
+<body>
+<div id="map" style="width:760px;height:400px;margin-top:20px;"></div>
+<input type="button" value="마커 삭제" onclick="Javascript:fnRemoveMarker();" />
+<input type="button" value="마커 읽어오기" onclick="Javascript:viewMarker();" />
+<div id="marketCount">0</div>
 </body>
-
 </html>
